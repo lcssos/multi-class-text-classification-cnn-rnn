@@ -1,16 +1,9 @@
-import os
 import re
-import sys
-import json
-import pickle
 import logging
 import itertools
 import numpy as np
 import pandas as pd
-import gensim as gs
-from pprint import pprint
 from collections import Counter
-from tensorflow.contrib import learn
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -83,10 +76,10 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
 			yield shuffled_data[start_index:end_index]
 
 def load_data(filename):
-    # 加载zip文件，解押为csv格式
+	# 加载zip文件，解押为csv格式
 	df = pd.read_csv(filename, compression='zip')
 	selected = ['Category', 'Descript']
-    # 非分类及文本内容列
+	# 非分类及文本内容列
 	non_selected = list(set(df.columns) - set(selected))
 
 	df = df.drop(non_selected, axis=1)

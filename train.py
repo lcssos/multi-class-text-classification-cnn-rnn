@@ -7,7 +7,6 @@ import pickle
 import logging
 import data_helper
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from text_cnn_rnn import TextCNNRNN
 from sklearn.model_selection import train_test_split
@@ -98,8 +97,8 @@ def train_cnn_rnn():
 					[global_step, cnn_rnn.loss, cnn_rnn.accuracy, cnn_rnn.num_correct, cnn_rnn.predictions], feed_dict)
 				return accuracy, loss, num_correct, predictions
 
-			saver = tf.train.Saver(tf.all_variables())
-			sess.run(tf.initialize_all_variables())
+			saver = tf.train.Saver(tf.global_variables())
+			sess.run(tf.global_variables_initializer())
 
 			# Training starts here
 			train_batches = data_helper.batch_iter(list(zip(x_train, y_train)), params['batch_size'], params['num_epochs'])
@@ -132,6 +131,7 @@ def train_cnn_rnn():
 
 			# Evaluate x_test and y_test
 			saver.restore(sess, checkpoint_prefix + '-' + str(best_at_step))
+
 			test_batches = data_helper.batch_iter(list(zip(x_test, y_test)), params['batch_size'], 1, shuffle=False)
 			total_test_correct = 0
 			for test_batch in test_batches:
@@ -148,7 +148,7 @@ def train_cnn_rnn():
 	with open(trained_dir + 'labels.json', 'w') as outfile:
 		json.dump(labels, outfile, indent=4, ensure_ascii=False)
 
-	os.rename(path, trained_dir + 'best_model.ckpt')
+	os.rename(path+".data-00000-of-00001", trained_dir + 'best_model.ckpt')
 	os.rename(path + '.meta', trained_dir + 'best_model.meta')
 	shutil.rmtree(checkpoint_dir)
 	logging.critical('{} has been removed'.format(checkpoint_dir))

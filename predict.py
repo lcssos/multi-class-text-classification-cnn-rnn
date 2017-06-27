@@ -107,7 +107,8 @@ def predict_unseen_data():
 				return predictions
 
 			checkpoint_file = trained_dir + 'best_model.ckpt'
-			saver = tf.train.Saver(tf.all_variables())
+			saver = tf.train.Saver(tf.global_variables())
+			logging.info("{}.meta".format(checkpoint_file[:-5]))
 			saver = tf.train.import_meta_graph("{}.meta".format(checkpoint_file[:-5]))
 			saver.restore(sess, checkpoint_file)
 			logging.critical('{} has been loaded'.format(checkpoint_file))
