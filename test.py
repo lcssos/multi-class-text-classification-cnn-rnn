@@ -13,48 +13,50 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def load_trained_params(trained_dir):
-	params = json.loads(open(trained_dir + 'trained_parameters.json').read())
-	words_index = json.loads(open(trained_dir + 'words_index.json').read())
-	labels = json.loads(open(trained_dir + 'labels.json').read())
+    params = json.loads(open(trained_dir + 'trained_parameters.json').read())
+    words_index = json.loads(open(trained_dir + 'words_index.json').read())
+    labels = json.loads(open(trained_dir + 'labels.json').read())
 
-	with open(trained_dir + 'embeddings.pickle', 'rb') as input_file:
-		fetched_embedding = pickle.load(input_file)
-	embedding_mat = np.array(fetched_embedding, dtype = np.float32)
-	return params, words_index, labels, embedding_mat
+    with open(trained_dir + 'embeddings.pickle', 'rb') as input_file:
+        fetched_embedding = pickle.load(input_file)
+    embedding_mat = np.array(fetched_embedding, dtype=np.float32)
+    return params, words_index, labels, embedding_mat
+
 
 def load_test_data(test_file, labels):
-	df = pd.read_csv(test_file, sep='|')
-	select = ['Descript']
+    df = pd.read_csv(test_file, sep=',',encoding="utf8",error_bad_lines=False)
+    select = ['Descript']
 
-	df = df.dropna(axis=0, how='any', subset=select)
-	test_examples = df[select[0]].apply(lambda x: data_helper.clean_str(x).split(' ')).tolist()
+    df = df.dropna(axis=0, how='any', subset=select)
+    test_examples = df[select[0]].apply(lambda x: data_helper.clean_str(x).split(' ')).tolist()
+    # logging.info(test_examples)
 
-	num_labels = len(labels)
-	one_hot = np.zeros((num_labels, num_labels), int)
-	np.fill_diagonal(one_hot, 1)
-	label_dict = dict(zip(labels, one_hot))
+    num_labels = len(labels)
+    one_hot = np.zeros((num_labels, num_labels), int)
+    np.fill_diagonal(one_hot, 1)
+    label_dict = dict(zip(labels, one_hot))
 
-	y_ = None
-	if 'Category' in df.columns:
-		select.append('Category')
-		y_ = df[select[1]].apply(lambda x: label_dict[x]).tolist()
+    y_ = None
+    if 'Category' in df.columns:
+        select.append('Category')
+        y_ = df[select[1]].apply(lambda x: label_dict[x]).tolist()
 
-	not_select = list(set(df.columns) - set(select))
-	df = df.drop(not_select, axis=1)
-	return test_examples, y_, df
+    not_select = list(set(df.columns) - set(select))
+    df = df.drop(not_select, axis=1)
+    return test_examples, y_, df
+
 
 def map_word_to_index(examples, words_index):
-	x_ = []
-	for example in examples:
-		temp = []
-		for word in example:
-			if word in words_index:
-				temp.append(words_index[word])
-			else:
-				temp.append(0)
-		x_.append(temp)
-	return x_
-
+    x_ = []
+    for example in examples:
+        temp = []
+        for word in example:
+            if word in words_index:
+                temp.append(words_index[word])
+            else:
+                temp.append(0)
+        x_.append(temp)
+    return x_
 
 
 def test_data():
@@ -106,10 +108,19 @@ def test_data():
                     [cnn_rnn.loss, cnn_rnn.num_correct, cnn_rnn.predictions], feed_dict)
                 return loss, num_correct, predictions
 
+            checkpoint_file = trained_dir + 'model-16'
+            saver = tf.train.Saver(tf.global_variables())
+            logging.info(checkpoint_file)
+            saver.restore(sess, checkpoint_file)
+            logging.critical('{} has been loaded'.format(checkpoint_file))
+
             total_test_correct = 0
             loss, num_test_correct, predictions = dev_step(x_test, y_test)
+            logging.info(num_test_correct)
+            logging.info(predictions)
             total_test_correct += int(num_test_correct)
             logging.critical('Accuracy on test set: {}'.format(float(total_test_correct) / len(y_test)))
+
 
 if __name__ == '__main__':
     test_data()

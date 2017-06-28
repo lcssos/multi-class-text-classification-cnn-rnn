@@ -112,6 +112,7 @@ def train_cnn_rnn():
                 train_step(x_train_batch, y_train_batch)
                 current_step = tf.train.global_step(sess, global_step)
 
+                logging.info("current_step:{}".format(current_step))
                 # Evaluate the model with x_dev and y_dev
                 if current_step % params['evaluate_every'] == 0:
                     dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), params['batch_size'], 1)
@@ -130,6 +131,7 @@ def train_cnn_rnn():
                         logging.critical('Saved model {} at step {}'.format(path, best_at_step))
                         logging.critical('Best accuracy {} at step {}'.format(best_accuracy, best_at_step))
                         logging.critical('-'*30)
+
             logging.critical('Training is complete, testing the best model on x_test and y_test')
 
             # Evaluate x_test and y_test
@@ -151,11 +153,11 @@ def train_cnn_rnn():
     with open(trained_dir + 'labels.json', 'w') as outfile:
         json.dump(labels, outfile, indent=4, ensure_ascii=False)
 
-    os.rename(path + ".data-00000-of-00001", trained_dir + 'best_model.data-00000-of-00001')
-    os.rename(path + ".index", trained_dir + 'best_model.index')
-    os.rename(path + '.meta', trained_dir + 'best_model.meta')
+    # os.rename(path + ".data-00000-of-00001", trained_dir + 'best_model.data-00000-of-00001')
+    # os.rename(path + ".index", trained_dir + 'best_model.index')
+    # os.rename(path + '.meta', trained_dir + 'best_model.meta')
     # shutil.rmtree(checkpoint_dir)
-    logging.critical('{} has been removed'.format(checkpoint_dir))
+    # logging.critical('{} has been removed'.format(checkpoint_dir))
 
     params['sequence_length'] = x_train.shape[1]
     with open(trained_dir + 'trained_parameters.json', 'w') as outfile:
