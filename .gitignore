@@ -1,2 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea
+*/checkpoint
+*.data-00000-of-00001
+*.index
+*.meta
+*.pickle
+*.json
+*.csv
+!data/small_samples.csv
