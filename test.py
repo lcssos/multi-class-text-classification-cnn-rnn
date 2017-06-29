@@ -79,7 +79,7 @@ def test_data():
         session_conf = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
         sess = tf.Session(config=session_conf)
         with sess.as_default():
-            logging.info(params)
+            # logging.info(params)
             cnn_rnn = TextCNNRNN(
                 embedding_mat=embedding_mat,
                 non_static=params['non_static'],
