@@ -108,7 +108,7 @@ def test_data():
                     [cnn_rnn.loss, cnn_rnn.num_correct, cnn_rnn.predictions], feed_dict)
                 return loss, num_correct, predictions
 
-            checkpoint_file = trained_dir + 'model-16'
+            checkpoint_file = trained_dir + 'model-4'
             saver = tf.train.Saver(tf.global_variables())
             logging.info(checkpoint_file)
             saver.restore(sess, checkpoint_file)

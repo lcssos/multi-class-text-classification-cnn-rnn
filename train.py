@@ -37,10 +37,25 @@ def train_cnn_rnn():
 
     # Create a directory, everything related to the training will be saved in this directory
     timestamp = str(int(time.time()))
-    trained_dir = './trained_results_' + timestamp + '/'
-    if os.path.exists(trained_dir):
-        shutil.rmtree(trained_dir)
-    os.makedirs(trained_dir)
+    # trained_dir = './trained_results_' + timestamp + '/'
+    # if os.path.exists(trained_dir):
+    #     shutil.rmtree(trained_dir)
+    # os.makedirs(trained_dir)
+
+    # Checkpoint files will be saved in this directory during training
+    checkpoint_dir = './checkpoints_' + timestamp + '/'
+    if os.path.exists(checkpoint_dir):
+        shutil.rmtree(checkpoint_dir)
+    os.makedirs(checkpoint_dir)
+    checkpoint_prefix = os.path.join(checkpoint_dir, 'model')
+
+    # Save trained parameters and files since predict.py needs them
+    with open(checkpoint_dir + 'words_index.json', 'w') as outfile:
+        json.dump(vocabulary, outfile, indent=4, ensure_ascii=False)
+    with open(checkpoint_dir + 'embeddings.pickle', 'wb') as outfile:
+        pickle.dump(embedding_mat, outfile, pickle.HIGHEST_PROTOCOL)
+    with open(checkpoint_dir + 'labels.json', 'w') as outfile:
+        json.dump(labels, outfile, indent=4, ensure_ascii=False)
 
     graph = tf.Graph()
     with graph.as_default():
@@ -64,12 +79,6 @@ def train_cnn_rnn():
             grads_and_vars = optimizer.compute_gradients(cnn_rnn.loss)
             train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
-            # Checkpoint files will be saved in this directory during training
-            checkpoint_dir = './checkpoints_' + timestamp + '/'
-            if os.path.exists(checkpoint_dir):
-                shutil.rmtree(checkpoint_dir)
-            os.makedirs(checkpoint_dir)
-            checkpoint_prefix = os.path.join(checkpoint_dir, 'model')
 
             def real_len(batches):
                 return [np.ceil(np.argmin(batch + [0]) * 1.0 / params['max_pool_size']) for batch in batches]
@@ -145,13 +154,6 @@ def train_cnn_rnn():
                 total_test_correct += int(num_test_correct)
             logging.critical('Accuracy on test set: {}'.format(float(total_test_correct) / len(y_test)))
 
-    # Save trained parameters and files since predict.py needs them
-    with open(trained_dir + 'words_index.json', 'w') as outfile:
-        json.dump(vocabulary, outfile, indent=4, ensure_ascii=False)
-    with open(trained_dir + 'embeddings.pickle', 'wb') as outfile:
-        pickle.dump(embedding_mat, outfile, pickle.HIGHEST_PROTOCOL)
-    with open(trained_dir + 'labels.json', 'w') as outfile:
-        json.dump(labels, outfile, indent=4, ensure_ascii=False)
 
     # os.rename(path + ".data-00000-of-00001", trained_dir + 'best_model.data-00000-of-00001')
     # os.rename(path + ".index", trained_dir + 'best_model.index')
@@ -160,7 +162,7 @@ def train_cnn_rnn():
     # logging.critical('{} has been removed'.format(checkpoint_dir))
 
     params['sequence_length'] = x_train.shape[1]
-    with open(trained_dir + 'trained_parameters.json', 'w') as outfile:
+    with open(checkpoint_dir + 'trained_parameters.json', 'w') as outfile:
         json.dump(params, outfile, indent=4, sort_keys=True, ensure_ascii=False)
 
 

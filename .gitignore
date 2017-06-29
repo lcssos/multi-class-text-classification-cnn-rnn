@@ -1,4 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
+.DS_Store
+
 .idea
 */checkpoint
 *.data-00000-of-00001
@@ -8,3 +10,6 @@
 *.json
 *.csv
 !data/small_samples.csv
+!jiebafenci/fencied.csv
+!jiebafenci/test.csv
+!training_config.json

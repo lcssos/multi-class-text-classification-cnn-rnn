@@ -25,7 +25,7 @@ def load_trained_params(trained_dir):
 
 
 def load_test_data(test_file, labels):
-    df = pd.read_csv(test_file, sep='|')
+    df = pd.read_csv(test_file, sep=',',error_bad_lines=False)
     select = ['Descript']
 
     df = df.dropna(axis=0, how='any', subset=select)
@@ -110,7 +110,7 @@ def predict_unseen_data():
                 predictions = sess.run([cnn_rnn.predictions], feed_dict)
                 return predictions
 
-            checkpoint_file = trained_dir + 'model-2300'
+            checkpoint_file = trained_dir + 'model-4'
             saver = tf.train.Saver(tf.global_variables())
             logging.info(checkpoint_file)
             # logging.info("{}.meta".format(checkpoint_file[:-5]))
